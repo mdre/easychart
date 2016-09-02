@@ -1,0 +1,119 @@
+import java.text.SimpleDateFormat
+
+//apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
+apply plugin: 'java'
+apply plugin: 'maven' 
+
+def getCurrentTimestamp ()
+{
+    Date today = new Date ()
+    SimpleDateFormat df = new SimpleDateFormat ("dd/MM/yyyy hh:mm:ss")
+    return df.format (today)
+}
+
+println getCurrentTimestamp()
+
+dependencies {
+    //    compile 'com.vaadin:vaadin-maven-plugin:7.6.+'
+    compile 'com.vaadin:vaadin-server:7.6.+'
+    compile 'com.vaadin:vaadin-client-compiled:7.6.+'
+    ///compile "javax:javaee-api:7.0"
+    //compile 'org.vaadin.addon:v-ol3:1.0'
+}
+
+repositories {
+    //    mavenCentral()
+    
+    mavenLocal()
+     
+    maven {
+        url "https://plugins.gradle.org/m2/"
+        url "http://maven.vaadin.com/vaadin-addons"
+    }
+    
+    //    maven {
+    //        url "$nexusURLPublic"
+    //
+    //        credentials {
+    //            username = "$nexusUser"
+    //            password = "$nexusPassword"
+    //        }
+    //    }
+    
+}
+
+
+configurations.all {
+    resolutionStrategy {
+        force 'xml-apis:xml-apis:1.0.b2'
+    }
+}
+
+task runFile(dependsOn: 'classes',type:JavaExec) {
+    if (project.hasProperty('mainClass')) {
+        main = mainClass
+        classpath = sourceSets.main.runtimeClasspath
+        standardOutput = System.out
+        errorOutput = System.err
+    }
+}
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+artifacts {
+    archives sourcesJar
+//    archives javadocJar
+}
+
+
+test {
+    testLogging {
+        // Make sure output from
+        // standard out or error is shown
+        // in Gradle output.
+        showStandardStreams = true
+ 
+        // Or we use events method:
+        // events 'standard_out', 'standard_error'
+ 
+        // Or set property events:
+        // events = ['standard_out', 'standard_error']
+ 
+        // Instead of string values we can
+        // use enum values:
+        // events org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+        //        org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
+    }
+}
+
+
+
+//subprojects {
+//    repositories {
+//        maven {
+//            url "$nexusURLPublic"
+//
+//            credentials {
+//                username = "$nexusUser"
+//                password = "$nexusPassword"
+//            }
+//        }
+//    }
+//}
+
+//vaadin {
+//    version '7.6.+'
+//    vaadin.manageDependencies = true
+//}
+
+
+
