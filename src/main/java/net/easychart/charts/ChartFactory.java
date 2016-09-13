@@ -61,11 +61,14 @@ public class ChartFactory {
             String c3s = new Scanner(new File(classLoader.getResource("net/easychart/charts/models/C3TimeSeries.js").getFile())).useDelimiter("\\Z").next();
 
             // ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer("");
             for (Object string : data.getColumns()) {
                 sb.append("\'").append(string).append("\',");
             }
-            String labels = sb.deleteCharAt(sb.length() - 1).toString();
+            String labels="";
+            if (sb.length()>0)
+                labels = sb.deleteCharAt(sb.length() - 1).toString();
+            
             LOGGER.log(Level.FINER, "lables: "+labels);
             
             // Preparar los datos
@@ -78,7 +81,10 @@ public class ChartFactory {
                 String sData = serie.toString().replace("[", "['"+row+"',");
                 sbData.append(sData).append(",");
             }
-            String sData = sbData.deleteCharAt(sbData.length() - 1).toString();
+            String sData="";
+            if (sbData.length()>0)
+                sData = sbData.deleteCharAt(sbData.length() - 1).toString();
+            
             LOGGER.log(Level.FINER, "datos: "+sData);
             
             String script = c3s
@@ -93,4 +99,70 @@ public class ChartFactory {
         }
         return chart;
     }
+    
+    
+    
+    public static Chart c3Gauge(String chartID, ArrayList colData, ArrayList<String> categories) {
+        Chart chart = null;
+        try {
+            ClassLoader classLoader = Chart.class.getClassLoader();
+            String c3s = new Scanner(new File(classLoader.getResource("net/easychart/charts/models/C3Gauge.js").getFile())).useDelimiter("\\Z").next();
+
+            // encerrar las categorías entre comillas para poder usarlas
+//            categories.replaceAll((String t) -> "\"" + t + "\"");
+//
+            String c3script = c3s
+                    .replace("chartId", chartID);
+//                    .replace("colData", colData.toString())
+//                    .replace("catData", categories.toString().replace("[", "").replace("]", ""));
+
+            chart = new Chart(chartID, c3script);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Chart.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return chart;
+    }
+    
+    /**
+     * @param chartID: identificador del chart a generar. Debe ser agredado con addStyle
+     * @param colData: los valores correspondientes a cada categoría
+     * @param categories: label de la categoría. Cada posición de la categoría se corresponde con una posición de colData
+     * @return retorna un PieChart
+     * 
+     */
+    public static Chart c3PieChartWithTopLegendBar(String chartID, ArrayList colData, ArrayList<String> categories) {
+        Chart chart = null;
+        try {
+            ClassLoader classLoader = Chart.class.getClassLoader();
+            String c3s = new Scanner(new File(classLoader.getResource("net/easychart/charts/models/PieChartWithTopLegendBar.js").getFile())).useDelimiter("\\Z").next();
+
+            StringBuffer sbColData = new StringBuffer();
+            StringBuffer sbLabels = new StringBuffer();
+            
+            sbLabels.append("[");
+            for (int i = 0; i < categories.size(); i++) {
+                String lab = categories.get(i);
+                String data = ""+colData.get(i);
+                sbColData.append("['").append(lab).append("',").append(data).append("],");
+                sbLabels.append("'").append(lab).append("',");
+            }
+            String labels = sbLabels.deleteCharAt(sbLabels.length() - 1).toString()+"]";
+            String data = sbColData.deleteCharAt(sbColData.length() - 1).toString();
+            
+            // preparar los datos
+            // encerrar las categorías entre comillas para poder usarlas
+//            categories.replaceAll((String t) -> "\"" + t + "\"");
+//
+            String c3script = c3s
+                    .replace("chartId", chartID)
+                    .replace("colData", data)
+                    .replace("dataLabel", labels);
+
+            chart = new Chart(chartID, c3script);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Chart.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return chart;
+    }
+    
 }

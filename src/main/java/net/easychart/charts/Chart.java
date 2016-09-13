@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 //@StyleSheet("vaadin://addons/c3wrapper/c3.min.css")
 // "c3component.js",
-@StyleSheet("c3.min.css")
+@StyleSheet("c3.css")
 @JavaScript({"c3.min.js", "d3.356.min.js", "chart-component-connector.js"})
 public class Chart extends AbstractJavaScriptComponent {
 
